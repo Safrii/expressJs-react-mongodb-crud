@@ -31,7 +31,7 @@ const EmployeeTable = () => {
                     <Placeholder xs={12} />
                     <Placeholder xs={12} />
                     <Placeholder xs={12} />
-                    <h5>Is your backend running ? 😥</h5>
+                    Is your backend running ? Check mongodb in docker 😥
                 </Placeholder>
                 :
                 <Table striped>
