@@ -1,25 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import Placeholder from 'react-bootstrap/Placeholder';
 import axios from 'axios';
+import { useRecoilState } from 'recoil';
+import { employeeList } from '../recoil/employeeAtom';
 
 const EmployeeTable = () => {
 
-    const [employees, setEmployees] = useState([]);
+    const [employees, setEmployees] = useRecoilState(employeeList);
 
     const fetchEmployees = async () => {
-        const employeesList = await axios.get('http://localhost:8080/api/employees')
-        setEmployees(employeesList.data.data.employees)
+        const employeesList = await axios.get('http://localhost:8080/api/employees');
+        setEmployees(employeesList.data.data.employees);
     }
 
     const deleteEmployee = async (employeeId) => {
-        await axios.delete(`http://localhost:8080/api/employee/${employeeId}`)
+        const deletedEmployee = await axios.delete(`http://localhost:8080/api/employee/${employeeId}`);
+        let filteredArray = employees.filter(item => item._id !== deletedEmployee.data.data.deletedEmployee._id);
+        setEmployees(filteredArray);
     }
 
     useEffect(() => {
         fetchEmployees()
-    }, [])
+    }, [employees])
 
     return (
         <>
@@ -32,6 +36,7 @@ const EmployeeTable = () => {
                     <Placeholder xs={12} />
                     <Placeholder xs={12} />
                     Is your backend running ? Check mongodb in docker 😥
+                    Or simply create new employee 😁
                 </Placeholder>
                 :
                 <Table striped>

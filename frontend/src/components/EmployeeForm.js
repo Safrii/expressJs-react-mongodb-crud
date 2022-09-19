@@ -5,8 +5,21 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
+import { useSetRecoilState } from 'recoil';
+import { employeeList } from '../recoil/employeeAtom';
 
 const EmployeeForm = () => {
+
+    const addNewEmployee = useSetRecoilState(employeeList);
+
+    const createEmplyee = async (employee) => {
+        const newEmployee = await axios.post(`http://localhost:8080/api/employee`, {
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            email: employee.email
+        });
+        addNewEmployee(newEmployee);
+    };
 
     const formik = useFormik({
         initialValues: {
@@ -26,10 +39,10 @@ const EmployeeForm = () => {
             email: Yup.string().email('Invalid Email').required('Required')
         }),
         onSubmit: (values) => {
-            console.log(values)
+            createEmplyee(values)
+            formik.resetForm();
         }
     });
-
 
     return (
         <>

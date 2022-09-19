@@ -46,7 +46,7 @@ exports.findById = async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(204).json({
+        res.status(400).json({
             status: 'fail',
             message: err
         })
@@ -56,9 +56,12 @@ exports.findById = async (req, res) => {
 exports.deleteEmployee = async (req, res) => {
     const id = req.params.id
     try {
-        await Employee.findByIdAndDelete(id);
-        res.status(204).json({
-            status: 'success'
+        const deletedEmployee = await Employee.findByIdAndDelete(id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                deletedEmployee: deletedEmployee
+            }
         });
     } catch (err) {
         res.status(400).json({
