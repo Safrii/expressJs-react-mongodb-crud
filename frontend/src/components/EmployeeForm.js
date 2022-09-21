@@ -5,12 +5,14 @@ import Form from 'react-bootstrap/Form';
 import Card from 'react-bootstrap/Card';
 import { useFormik } from 'formik'
 import * as Yup from 'yup';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { employeeList } from '../recoil/employeeAtom';
+import { selectedEmployeeAtom } from '../recoil/selectedEmployeeAtom';
 
 const EmployeeForm = () => {
 
     const addNewEmployee = useSetRecoilState(employeeList);
+    const selectedEmployee = useRecoilValue(selectedEmployeeAtom);
 
     const createEmplyee = async (employee) => {
         const newEmployee = await axios.post(`http://localhost:8080/api/employee`, {
@@ -21,11 +23,21 @@ const EmployeeForm = () => {
         addNewEmployee(newEmployee);
     };
 
+    const updateEmployee = async () => {
+        console.log(selectedEmployee._id)
+        await axios.put(`http://localhost:8080/api/employee/${selectedEmployee._id}`, {
+            firstName: selectedEmployee.firstName,
+            lastName: selectedEmployee.lastName,
+            email: selectedEmployee.email
+        })
+    }
+
     const formik = useFormik({
+        enableReinitialize: true,
         initialValues: {
-            firstName: '',
-            lastName: '',
-            email: ''
+            firstName: selectedEmployee.firstName,
+            lastName: selectedEmployee.lastName,
+            email: selectedEmployee.email
         },
         validationSchema: Yup.object({
             firstName: Yup.string()
@@ -39,9 +51,17 @@ const EmployeeForm = () => {
             email: Yup.string().email('Invalid Email').required('Required')
         }),
         onSubmit: (values) => {
-            createEmplyee(values)
-            formik.resetForm();
-        }
+            if (Object.keys(selectedEmployee).length === 0) {
+                createEmplyee(values)
+                console.log('create')
+            } else {
+                updateEmployee();
+                console.log('update')
+            }
+            formik.resetForm({
+                values: { firstName: '', lastName: '', email: '' }
+            });
+        },
     });
 
     return (

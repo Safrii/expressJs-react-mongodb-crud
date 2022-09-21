@@ -5,10 +5,12 @@ import Placeholder from 'react-bootstrap/Placeholder';
 import axios from 'axios';
 import { useRecoilState } from 'recoil';
 import { employeeList } from '../recoil/employeeAtom';
+import { selectedEmployeeAtom } from '../recoil/selectedEmployeeAtom';
 
 const EmployeeTable = () => {
 
     const [employees, setEmployees] = useRecoilState(employeeList);
+    const [_, setSelectedEmployee] = useRecoilState(selectedEmployeeAtom);
 
     const fetchEmployees = async () => {
         const employeesList = await axios.get('http://localhost:8080/api/employees');
@@ -19,6 +21,10 @@ const EmployeeTable = () => {
         const deletedEmployee = await axios.delete(`http://localhost:8080/api/employee/${employeeId}`);
         let filteredArray = employees.filter(item => item._id !== deletedEmployee.data.data.deletedEmployee._id);
         setEmployees(filteredArray);
+    }
+
+    const selectEmployeeForUpdate = (selectedEmployee) => {
+        setSelectedEmployee(selectedEmployee);
     }
 
     useEffect(() => {
@@ -55,7 +61,7 @@ const EmployeeTable = () => {
                                 <td>{employee.firstName}</td>
                                 <td>{employee.lastName}</td>
                                 <td>{employee.email}</td>
-                                <td><Button variant='warning' size='sm'>Update</Button></td>
+                                <td><Button disabled='true' variant='warning' size='sm' onClick={() => selectEmployeeForUpdate(employee)}>Update</Button></td>
                                 <td><Button variant='danger' size='sm' onClick={() => deleteEmployee(employee._id)}>Delete</Button></td>
                             </tr>
                         ))}
